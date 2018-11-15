@@ -4,10 +4,5 @@ spring:
       enabled: true
   application:
     name: SalesOrderService
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:salesorderdb
-    username: sa
-    password: sa
 server:
   port: 8084
