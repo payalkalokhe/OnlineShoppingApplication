@@ -4,4 +4,4 @@ spring:
       server:
         git:
           uri: https://github.com/payalkalokhe/OnlineShoppingApplicationConfiguration
-server:  port: 8084
+server:  port: 8888
