@@ -1,0 +1,6 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  application:
+    name: SalesOrderService  profiles:    active: development  cloud:    config:      uri: http://localhost:8084
