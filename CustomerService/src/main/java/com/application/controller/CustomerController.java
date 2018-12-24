@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.application.dto.CustomerDTO;
+import com.application.model.Customer;
 import com.application.service.CustomerService;
 
 @RestController
@@ -25,6 +27,11 @@ public class CustomerController {
 	@Autowired
 	private CustomerService customerService;
 
+	@Autowired
+	private KafkaTemplate<String, CustomerDTO> kafkaTemplate;
+
+	private static final String TOPIC = "CustomerCreated";
+
 	@GetMapping("/")
 	public List<CustomerDTO> getAllCustomers() {
 		return customerService.getAllCustomer();
@@ -34,17 +41,23 @@ public class CustomerController {
 	public CustomerDTO get(Long id) {
 		return customerService.get(id);
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public void delete(Long id) {
 		customerService.delete(id);
 	}
-	
-	@PostMapping("/")
+
+	/*@PostMapping("/")
 	public CustomerDTO add(CustomerDTO customerDTO) {
 		return customerService.save(customerDTO);
+	}*/
+
+	@PostMapping("/")
+	public CustomerDTO add(CustomerDTO customerDTO) {
+		kafkaTemplate.send(TOPIC, customerDTO);
+		return customerService.save(customerDTO);
 	}
-	
+
 	@PutMapping("/{id}")
 	public CustomerDTO update(Long id, CustomerDTO customerDTO) {
 		customerDTO.setId(id);
@@ -52,7 +65,7 @@ public class CustomerController {
 	}
 
 	@ExceptionHandler(Throwable.class)
-    public ResponseEntity<?> handleException(Throwable t)  {
+	public ResponseEntity<?> handleException(Throwable t) {
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
